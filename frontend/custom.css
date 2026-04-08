@@ -1252,12 +1252,19 @@ h1, h2, h3, h4, h5, h6 {
     --surface: #ffffff;
     --text-primary: #0f172a;
     --text-secondary: #475569;
+    --text-muted: #334155;
     --border-soft: #dbe4f0;
+    --light-bg-alt: #f8fbff;
+    --tab-border: #d7e0ec;
+    --primary-border-light: #9cc2e6;
+    --focus-border: #8bb7e0;
+    --border-dashed: #d4dfec;
 }
 
 body {
+    /* Plus Jakarta Sans is loaded in frontend/index.html via Google Fonts */
     font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
-    background: linear-gradient(180deg, #f8fbff 0%, var(--light-bg) 100%);
+    background: linear-gradient(180deg, var(--light-bg-alt) 0%, var(--light-bg) 100%);
     color: var(--text-primary);
 }
 
@@ -1308,14 +1315,14 @@ body {
 .nav-tabs .nav-link {
     border: 1px solid transparent;
     border-radius: 10px 10px 0 0;
-    color: #334155;
+    color: var(--text-muted);
     font-weight: 600;
     padding: 0.65rem 1rem;
 }
 
 .nav-tabs .nav-link:hover {
-    border-color: #d7e0ec;
-    background: #f8fbff;
+    border-color: var(--tab-border);
+    background: var(--light-bg-alt);
     color: var(--primary-color);
 }
 
@@ -1348,7 +1355,7 @@ body {
 
 .btn-outline-primary {
     color: var(--primary-color);
-    border-color: #9cc2e6;
+    border-color: var(--primary-border-light);
 }
 
 .btn-outline-primary:hover {
@@ -1366,13 +1373,13 @@ body {
 
 .form-control:focus,
 .form-select:focus {
-    border-color: #8bb7e0;
+    border-color: var(--focus-border);
     box-shadow: 0 0 0 4px rgba(11, 75, 135, 0.12);
 }
 
 .empty-state {
     background: #fbfdff;
-    border: 1px dashed #d4dfec;
+    border: 1px dashed var(--border-dashed);
     border-radius: 14px;
 }
 
