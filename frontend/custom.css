@@ -1414,4 +1414,14 @@ body {
         transition: none !important;
         scroll-behavior: auto !important;
     }
+
+    .dashboard-card:hover,
+    .card:hover,
+    .feature-card-modern:hover,
+    .btn-navbar-login:hover,
+    .btn-hero-primary:hover,
+    .btn-hero-secondary:hover,
+    .navbar-pro-brand:hover {
+        transform: none !important;
+    }
 }
