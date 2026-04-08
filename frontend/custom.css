@@ -1257,7 +1257,7 @@ h1, h2, h3, h4, h5, h6 {
 
 body {
     font-family: 'Plus Jakarta Sans', 'Inter', 'Segoe UI', sans-serif;
-    background: radial-gradient(circle at top right, #eef4ff 0%, var(--light-bg) 45%, #f7f9fc 100%);
+    background: linear-gradient(180deg, #f8fbff 0%, var(--light-bg) 100%);
     color: var(--text-primary);
 }
 
@@ -1396,7 +1396,7 @@ body {
 }
 
 .feature-card-modern:hover {
-    transform: translateY(-5px);
+    transform: translateY(-3px);
     box-shadow: 0 14px 30px rgba(15, 23, 42, 0.09);
 }
 
