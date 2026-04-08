@@ -1424,7 +1424,6 @@ body {
         box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05) !important;
     }
 
-    .feature-card-modern:hover,
     .btn-navbar-login:hover,
     .btn-hero-primary:hover,
     .btn-hero-secondary:hover,
@@ -1433,6 +1432,7 @@ body {
     }
 
     .feature-card-modern:hover {
+        transform: none !important;
         box-shadow: none !important;
     }
 }
