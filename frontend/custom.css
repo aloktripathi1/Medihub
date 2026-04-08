@@ -1256,7 +1256,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 body {
-    font-family: 'Plus Jakarta Sans', 'Inter', 'Segoe UI', sans-serif;
+    font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
     background: linear-gradient(180deg, #f8fbff 0%, var(--light-bg) 100%);
     color: var(--text-primary);
 }
@@ -1409,9 +1409,21 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    * {
+    html:focus-within {
+        scroll-behavior: auto;
+    }
+
+    .fade-in-up,
+    .fade-in-right,
+    .hero-mesh-gradient,
+    .glow-orb-1,
+    .glow-orb-2,
+    .glow-orb-3,
+    .trust-badge-pulse,
+    .stat-card::before,
+    .hero-title-gradient,
+    .btn-hero-shimmer {
         animation: none !important;
-        scroll-behavior: auto !important;
     }
 
     .dashboard-card:hover {
