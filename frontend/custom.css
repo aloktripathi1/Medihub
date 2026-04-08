@@ -1411,16 +1411,17 @@ body {
 @media (prefers-reduced-motion: reduce) {
     * {
         animation: none !important;
-        transition: none !important;
         scroll-behavior: auto !important;
     }
 
     .dashboard-card:hover {
         transform: none !important;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05) !important;
     }
 
     .card:hover {
         transform: none !important;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05) !important;
     }
 
     .feature-card-modern:hover,
@@ -1429,5 +1430,9 @@ body {
     .btn-hero-secondary:hover,
     .navbar-pro-brand:hover {
         transform: none !important;
+    }
+
+    .feature-card-modern:hover {
+        box-shadow: none !important;
     }
 }
