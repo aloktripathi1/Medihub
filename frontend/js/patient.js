@@ -15,37 +15,28 @@ const PatientTemplate = `
         <div class="container">
             <!-- Welcome Message -->
             <div class="mb-4">
-                <h3 class="text-primary mb-2">Welcome, {{ currentUser.name || currentUser.username }}!</h3>
+                <h3 class="admin-welcome-heading mb-2">Welcome, {{ currentUser.name || currentUser.username }}!</h3>
                 <p class="text-muted fs-5">Here are your upcoming appointments.</p>
             </div>
             
             <!-- Stats Cards -->
-            <div class="row mb-4 g-4">
+            <div class="row mb-4 g-3">
                 <div class="col-md-4">
-                    <div class="stat-card" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);">
-                        <div class="position-relative">
-                            <h2 class="mb-1 fw-bold">{{ stats.upcoming_appointments || 0 }}</h2>
-                            <p class="mb-0 opacity-90">Upcoming Appointments</p>
-                            <i class="bi bi-calendar-event stat-icon"></i>
-                        </div>
+                    <div class="stat-card">
+                        <h2 class="mb-1">{{ stats.upcoming_appointments || 0 }}</h2>
+                        <p class="mb-0">Upcoming Appointments</p>
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="stat-card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
-                        <div class="position-relative">
-                            <h2 class="mb-1 fw-bold">{{ stats.total_appointments || 0 }}</h2>
-                            <p class="mb-0 opacity-90">Total Appointments</p>
-                            <i class="bi bi-calendar-check stat-icon"></i>
-                        </div>
+                    <div class="stat-card">
+                        <h2 class="mb-1">{{ stats.total_appointments || 0 }}</h2>
+                        <p class="mb-0">Total Appointments</p>
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="stat-card" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);">
-                        <div class="position-relative">
-                            <h2 class="mb-1 fw-bold">{{ stats.doctors_visited || 0 }}</h2>
-                            <p class="mb-0 opacity-90">Doctors Visited</p>
-                            <i class="bi bi-heart-pulse stat-icon"></i>
-                        </div>
+                    <div class="stat-card">
+                        <h2 class="mb-1">{{ stats.doctors_visited || 0 }}</h2>
+                        <p class="mb-0">Doctors Visited</p>
                     </div>
                 </div>
             </div>
@@ -77,211 +68,145 @@ const PatientTemplate = `
             <div class="tab-content" id="patientTabsContent">
                 <!-- Book Appointment Tab -->
                 <div class="tab-pane fade show active" id="book" role="tabpanel">
-                    <!-- Booking Progress Indicator -->
-                    <div class="mb-4">
-                        <div class="d-flex justify-content-between align-items-center px-3">
-                            <div class="progress-step">
-                                <div class="step-circle" :class="{'active': !selectedDepartment, 'completed': selectedDepartment}">
-                                    <i v-if="selectedDepartment" class="bi bi-check"></i>
-                                    <span v-else>1</span>
-                                </div>
-                                <div class="step-line" :class="{'active': selectedDepartment}"></div>
+                    <div class="card mb-4">
+                        <div class="card-header d-flex align-items-center justify-content-between">
+                            <h5 class="mb-0"><i class="bi bi-calendar-plus me-2"></i>Book Appointment</h5>
+                            <!-- Step indicator -->
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge" :class="selectedDepartment ? 'bg-dark' : 'bg-secondary bg-opacity-25 text-muted'">1 Specialization</span>
+                                <i class="bi bi-chevron-right text-muted" style="font-size:11px"></i>
+                                <span class="badge" :class="selectedDoctor ? 'bg-dark' : 'bg-secondary bg-opacity-25 text-muted'">2 Doctor</span>
+                                <i class="bi bi-chevron-right text-muted" style="font-size:11px"></i>
+                                <span class="badge" :class="bookingForm.appointment_date ? 'bg-dark' : 'bg-secondary bg-opacity-25 text-muted'">3 Date</span>
+                                <i class="bi bi-chevron-right text-muted" style="font-size:11px"></i>
+                                <span class="badge" :class="bookingForm.appointment_time ? 'bg-dark' : 'bg-secondary bg-opacity-25 text-muted'">4 Time</span>
                             </div>
-                            <div class="progress-step">
-                                <div class="step-circle" :class="{'active': selectedDepartment && !selectedDoctor, 'completed': selectedDoctor}">
-                                    <i v-if="selectedDoctor" class="bi bi-check"></i>
-                                    <span v-else>2</span>
-                                </div>
-                                <div class="step-line" :class="{'active': selectedDoctor}"></div>
-                            </div>
-                            <div class="progress-step">
-                                <div class="step-circle" :class="{'active': selectedDoctor && !bookingForm.appointment_date, 'completed': bookingForm.appointment_date}">
-                                    <i v-if="bookingForm.appointment_date" class="bi bi-check"></i>
-                                    <span v-else>3</span>
-                                </div>
-                                <div class="step-line" :class="{'active': bookingForm.appointment_date}"></div>
-                            </div>
-                            <div class="progress-step">
-                                <div class="step-circle" :class="{'active': bookingForm.appointment_date && !bookingForm.appointment_time, 'completed': bookingForm.appointment_time}">
-                                    <i v-if="bookingForm.appointment_time" class="bi bi-check"></i>
-                                    <span v-else>4</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="d-flex justify-content-between mt-2 px-3">
-                            <small class="text-muted">Specialization</small>
-                            <small class="text-muted">Doctor</small>
-                            <small class="text-muted">Date</small>
-                            <small class="text-muted">Time</small>
-                        </div>
-                    </div>
-                    
-                    <div class="card mb-4 shadow-soft">
-                        <div class="card-header bg-white">
-                            <h5 class="mb-0"><i class="bi bi-calendar-plus me-2"></i>Book New Appointment</h5>
                         </div>
                         <div class="card-body">
                             <form @submit.prevent="bookAppointment">
                                 <!-- Step 1: Select Specialization -->
                                 <div class="mb-4" v-if="!selectedDepartment">
-                                    <label class="form-label h5 mb-3">Step 1: Select Specialization</label>
+                                    <p class="text-muted small mb-3">Choose a specialization to get started</p>
                                     <div class="row g-3">
                                         <div v-for="dept in departments" :key="dept.id" class="col-6 col-md-4 col-lg-3">
-                                            <div class="card h-100 cursor-pointer hover-scale border-0 shadow-sm" 
+                                            <div class="card h-100 cursor-pointer border"
+                                                 style="cursor:pointer; transition: border-color 0.15s ease;"
                                                  @click="selectDepartment(dept)"
-                                                 :class="{'ring-2 ring-primary': selectedDepartment?.id === dept.id}">
-                                                <div class="card-body text-center p-4">
-                                                    <div class="mb-3">
-                                                        <i class="bi display-4 text-primary" :class="getSpecializationIcon(dept.name)"></i>
+                                                 @mouseenter="$event.currentTarget.style.borderColor='#111827'"
+                                                 @mouseleave="$event.currentTarget.style.borderColor='#E4E7EC'">
+                                                <div class="card-body text-center p-3">
+                                                    <div class="mb-2">
+                                                        <i class="bi fs-2 text-muted" :class="getSpecializationIcon(dept.name)"></i>
                                                     </div>
-                                                    <h6 class="card-title fw-bold mb-1">{{ dept.name }}</h6>
-                                                    <small class="text-muted">{{ dept.doctor_count }} Doctors</small>
+                                                    <h6 class="card-title fw-600 mb-1" style="font-size:13px; font-weight:600;">{{ dept.name }}</h6>
+                                                    <small class="text-muted" style="font-size:12px;">{{ dept.doctor_count }} Doctor{{ dept.doctor_count !== 1 ? 's' : '' }}</small>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+
+                                <!-- Selected specialization chip + change -->
                                 <div v-else class="mb-4">
-                                    <div class="d-flex align-items-center justify-content-between bg-light p-3 rounded-3 mb-3">
-                                        <div class="d-flex align-items-center">
-                                            <div class="bg-white p-2 rounded-circle shadow-sm me-3">
-                                                <i class="bi text-primary fs-4" :class="getSpecializationIcon(selectedDepartment.name)"></i>
-                                            </div>
+                                    <div class="d-flex align-items-center justify-content-between p-3 rounded-3" style="background:#F9FAFB; border:1px solid #E4E7EC;">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <i class="bi text-muted fs-5" :class="getSpecializationIcon(selectedDepartment.name)"></i>
                                             <div>
-                                                <h6 class="mb-0 fw-bold">{{ selectedDepartment.name }}</h6>
-                                                <small class="text-muted">Selected Specialization</small>
+                                                <div style="font-size:14px; font-weight:600; color:#111827;">{{ selectedDepartment.name }}</div>
+                                                <div style="font-size:12px; color:#6B7280;">Selected specialization</div>
                                             </div>
                                         </div>
-                                        <button type="button" class="btn btn-sm btn-outline-secondary" @click="selectedDepartment = null; selectedDoctor = null; bookingForm.appointment_date = ''; bookingForm.appointment_time = ''">
-                                            Change
-                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" @click="selectedDepartment = null; selectedDoctor = null; bookingForm.appointment_date = ''; bookingForm.appointment_time = ''">Change</button>
                                     </div>
                                 </div>
 
                                 <!-- Step 2: Select Doctor -->
                                 <div v-if="selectedDepartment && !selectedDoctor" class="mb-4">
-                                    <label class="form-label h5 mb-3">Step 2: Select Doctor</label>
-                                    <div class="row g-3">
+                                    <p class="text-muted small mb-3">Select a doctor from the list</p>
+                                    <div class="row g-2">
                                         <div v-for="doctor in selectedDepartment.doctors" :key="doctor.id" class="col-md-6">
-                                            <div class="card h-100 cursor-pointer hover-scale border-0 shadow-sm" @click="selectDoctor(doctor)">
-                                                <div class="card-body d-flex align-items-center p-3">
-                                                    <div class="bg-primary bg-opacity-10 p-3 rounded-circle me-3">
-                                                        <i class="bi bi-person-badge text-primary fs-3"></i>
-                                                    </div>
-                                                    <div class="flex-grow-1">
-                                                        <h6 class="fw-bold mb-1">Dr. {{ doctor.name }}</h6>
-                                                        <p class="text-muted small mb-1">{{ doctor.qualification }}</p>
-                                                        <div class="d-flex align-items-center">
-                                                            <span class="badge bg-light text-dark border me-2">
-                                                                <i class="bi bi-briefcase me-1"></i>{{ doctor.experience }} yrs
-                                                            </span>
-                                                            <button class="btn btn-link btn-sm p-0 text-decoration-none" @click.stop="viewDoctorProfile(doctor)">
-                                                                View Profile
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                    <div class="text-primary">
-                                                        <i class="bi bi-chevron-right"></i>
-                                                    </div>
+                                            <div class="d-flex align-items-center p-3 rounded-3 border" style="cursor:pointer; transition: border-color 0.15s ease;"
+                                                 @click="selectDoctor(doctor)"
+                                                 @mouseenter="$event.currentTarget.style.borderColor='#111827'"
+                                                 @mouseleave="$event.currentTarget.style.borderColor='#E4E7EC'">
+                                                <div class="d-flex align-items-center justify-content-center rounded-circle me-3 flex-shrink-0" style="width:40px;height:40px;background:#F3F4F6;">
+                                                    <i class="bi bi-person-badge text-muted"></i>
                                                 </div>
+                                                <div class="flex-grow-1 min-width-0">
+                                                    <div style="font-size:14px; font-weight:600; color:#111827;">Dr. {{ doctor.name }}</div>
+                                                    <div style="font-size:12px; color:#6B7280;">{{ doctor.qualification }} &bull; {{ doctor.experience }} yrs exp</div>
+                                                </div>
+                                                <button class="btn btn-link btn-sm p-0 ms-2 text-decoration-none flex-shrink-0" style="font-size:12px;" @click.stop="viewDoctorProfile(doctor)">Profile</button>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+
+                                <!-- Selected doctor chip + change -->
                                 <div v-else-if="selectedDoctor" class="mb-4">
-                                    <div class="d-flex align-items-center justify-content-between bg-light p-3 rounded-3 mb-3">
-                                        <div class="d-flex align-items-center">
-                                            <div class="bg-white p-2 rounded-circle shadow-sm me-3">
-                                                <i class="bi bi-person-badge text-primary fs-4"></i>
+                                    <div class="d-flex align-items-center justify-content-between p-3 rounded-3" style="background:#F9FAFB; border:1px solid #E4E7EC;">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width:36px;height:36px;background:#E4E7EC;">
+                                                <i class="bi bi-person-badge text-muted" style="font-size:14px;"></i>
                                             </div>
                                             <div>
-                                                <h6 class="mb-0 fw-bold">Dr. {{ selectedDoctor.name }}</h6>
-                                                <small class="text-muted">{{ selectedDoctor.qualification }} • {{ selectedDoctor.experience }} yrs exp</small>
+                                                <div style="font-size:14px; font-weight:600; color:#111827;">Dr. {{ selectedDoctor.name }}</div>
+                                                <div style="font-size:12px; color:#6B7280;">{{ selectedDoctor.qualification }} &bull; {{ selectedDoctor.experience }} yrs exp</div>
                                             </div>
                                         </div>
-                                        <button type="button" class="btn btn-sm btn-outline-secondary" @click="selectedDoctor = null; bookingForm.appointment_date = ''; bookingForm.appointment_time = ''">
-                                            Change
-                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" @click="selectedDoctor = null; bookingForm.appointment_date = ''; bookingForm.appointment_time = ''">Change</button>
                                     </div>
                                 </div>
 
                                 <!-- Step 3: Select Date -->
                                 <div v-if="selectedDoctor" class="mb-4">
-                                    <label class="form-label">Step 3: Select Date</label>
-                                    <input type="date" class="form-control" v-model="bookingForm.appointment_date" @change="loadAvailableSlots" :min="minBookingDate" required>
-                                    <small class="text-muted">You cannot book appointments for past dates</small>
+                                    <label class="form-label">Date</label>
+                                    <input type="date" class="form-control" v-model="bookingForm.appointment_date" @change="loadAvailableSlots" :min="minBookingDate" required style="max-width:260px;">
+                                    <small class="text-muted">Cannot book for past dates</small>
                                 </div>
 
                                 <!-- Step 4: Select Time Slot -->
                                 <div v-if="selectedDoctor && bookingForm.appointment_date" class="mb-4">
-                                    <label class="form-label">Step 4: Select Time Slot</label>
-                                    <div v-if="availableSlots.length > 0">
-                                        <div class="row">
-                                            <div v-for="slot in availableSlots" :key="slot.slot_type" class="col-md-6 mb-2">
-                                                <button type="button" 
-                                                        class="btn w-100" 
-                                                        :class="[
-                                                            slot.status === 'available' ? 'btn-outline-success' : 'btn-outline-secondary',
-                                                            bookingForm.appointment_time === slot.appointment_time ? 'active bg-success text-white' : ''
-                                                        ]"
-                                                        :disabled="slot.status !== 'available'"
-                                                        @click="bookingForm.appointment_time = slot.appointment_time">
-                                                    <div class="py-2">
-                                                        <div>
-                                                            <strong>{{ slot.display }}</strong>
-                                                            <span class="ms-2 badge" :class="slot.status === 'available' ? 'bg-success' : 'bg-danger'">
-                                                                {{ slot.status === 'available' ? '✓' : '✗' }}
-                                                            </span>
-                                                        </div>
-                                                        <small class="text-muted">{{ slot.slot_type === 'morning' ? 'Morning Slot' : 'Evening Slot' }}</small>
-                                                    </div>
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <div v-if="bookingForm.appointment_time" class="mt-2">
-                                            <small class="text-success">
-                                                <i class="bi bi-check-circle me-1"></i>
-                                                {{ availableSlots.find(s => s.appointment_time === bookingForm.appointment_time)?.display }}
-                                            </small>
-                                        </div>
+                                    <label class="form-label">Available Slots</label>
+                                    <div v-if="availableSlots.length > 0" class="d-flex gap-2 flex-wrap">
+                                        <button v-for="slot in availableSlots" :key="slot.slot_type"
+                                                type="button"
+                                                class="btn btn-sm"
+                                                :class="[
+                                                    slot.status !== 'available' ? 'btn-outline-secondary disabled' : '',
+                                                    bookingForm.appointment_time === slot.appointment_time ? 'btn-dark' : (slot.status === 'available' ? 'btn-outline-secondary' : '')
+                                                ]"
+                                                :disabled="slot.status !== 'available'"
+                                                @click="bookingForm.appointment_time = slot.appointment_time"
+                                                style="min-width:130px; padding:8px 16px;">
+                                            <div style="font-size:13px; font-weight:600;">{{ slot.display }}</div>
+                                            <div style="font-size:11px; opacity:0.7;">{{ slot.slot_type === 'morning' ? 'Morning' : 'Evening' }}</div>
+                                        </button>
                                     </div>
-                                    <div v-else class="text-warning">
-                                        <small>
-                                            <i class="bi bi-info-circle me-1"></i>
-                                            No slots available for this date.
-                                        </small>
+                                    <div v-else class="text-muted small">
+                                        <i class="bi bi-info-circle me-1"></i>No slots available for this date.
                                     </div>
                                 </div>
-                                
-                                <!-- Notes Section -->
+
+                                <!-- Notes -->
                                 <div v-if="bookingForm.appointment_time" class="mb-4">
-                                    <label class="form-label">Additional Notes (Optional)</label>
-                                    <textarea class="form-control" v-model="bookingForm.notes" rows="3" placeholder="Any specific concerns or symptoms you'd like to mention..."></textarea>
+                                    <label class="form-label">Notes <span class="text-muted fw-normal">(optional)</span></label>
+                                    <textarea class="form-control" v-model="bookingForm.notes" rows="2" placeholder="Any specific concerns or symptoms..."></textarea>
                                 </div>
-                                
-                                <!-- Booking Summary -->
-                                <div v-if="selectedDoctor && bookingForm.appointment_date && bookingForm.appointment_time" class="alert alert-info mb-4">
-                                    <h6 class="alert-heading mb-3"><i class="bi bi-info-circle me-2"></i>Booking Summary</h6>
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <p class="mb-2"><strong>Doctor:</strong> Dr. {{ selectedDoctor.name }}</p>
-                                            <p class="mb-2"><strong>Specialization:</strong> {{ selectedDepartment.name }}</p>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <p class="mb-2"><strong>Date:</strong> {{ formatDisplayDate(bookingForm.appointment_date) }}</p>
-                                            <p class="mb-2"><strong>Time:</strong> {{ availableSlots.find(s => s.appointment_time === bookingForm.appointment_time)?.display }}</p>
-                                        </div>
+
+                                <!-- Summary row -->
+                                <div v-if="selectedDoctor && bookingForm.appointment_date && bookingForm.appointment_time" class="mb-4 p-3 rounded-3" style="background:#F9FAFB; border:1px solid #E4E7EC;">
+                                    <div class="row g-2" style="font-size:13px;">
+                                        <div class="col-6 col-md-3"><span class="text-muted">Doctor</span><br><strong>Dr. {{ selectedDoctor.name }}</strong></div>
+                                        <div class="col-6 col-md-3"><span class="text-muted">Specialization</span><br><strong>{{ selectedDepartment.name }}</strong></div>
+                                        <div class="col-6 col-md-3"><span class="text-muted">Date</span><br><strong>{{ formatDisplayDate(bookingForm.appointment_date) }}</strong></div>
+                                        <div class="col-6 col-md-3"><span class="text-muted">Fee</span><br><strong>&#8377;{{ selectedDoctor.consultation_fee || '0' }}</strong></div>
                                     </div>
-                                    <p class="mb-0"><strong>Consultation Fee:</strong> ₹{{ selectedDoctor.consultation_fee || '0.00' }}</p>
                                 </div>
-                                
-                                <button type="submit" class="btn btn-gradient btn-lg w-100" :disabled="loading || !bookingForm.appointment_time">
-                                    <span v-if="!loading">
-                                        <i class="bi bi-check-circle me-2"></i>Confirm Booking
-                                    </span>
-                                    <span v-else>
-                                        <span class="spinner-border spinner-border-sm me-2"></span>Processing...
-                                    </span>
+
+                                <button type="submit" class="btn btn-dark px-5" :disabled="loading || !bookingForm.appointment_time" style="min-width:180px; height:44px; font-size:14px;">
+                                    <span v-if="!loading"><i class="bi bi-check2 me-2"></i>Confirm Booking</span>
+                                    <span v-else><span class="spinner-border spinner-border-sm me-2"></span>Processing...</span>
                                 </button>
                             </form>
                         </div>

@@ -191,12 +191,40 @@ def update_appointment_status(appointment_id):
     
     appointment.status = status
     appointment.updated_at = datetime.utcnow()
-    
+
     if 'notes' in data:
         appointment.notes = data['notes']
-    
+
     db.session.commit()
-    
+
+    # Send cancellation emails when doctor cancels
+    if status == 'cancelled':
+        try:
+            from app import mail
+            from flask_mail import Message
+            from celery_tasks.email_template import get_email_template
+
+            patient_name = appointment.patient.name if appointment.patient else 'Patient'
+            doctor_name = appointment.doctor.name if appointment.doctor else 'Doctor'
+            apt_date = appointment.appointment_date
+            apt_time = appointment.appointment_time
+
+            if appointment.patient and appointment.patient.user and appointment.patient.user.email:
+                content = (
+                    f"<p>Hi {patient_name},</p>"
+                    f"<p>Your appointment has been <strong>cancelled</strong> by the doctor.</p>"
+                    f"<p><strong>Doctor:</strong> Dr. {doctor_name}</p>"
+                    f"<p><strong>Date:</strong> {apt_date}</p>"
+                    f"<p><strong>Time:</strong> {apt_time}</p>"
+                    f"<p>Please book a new appointment if needed.</p>"
+                )
+                msg = Message(subject="Appointment Cancellation - MediHub",
+                              recipients=[appointment.patient.user.email])
+                msg.html = get_email_template("Appointment Cancellation", content)
+                mail.send(msg)
+        except Exception:
+            pass  # Don't block the API response if mail fails
+
     return jsonify({'success': True, 'message': f'Appointment marked as {status}', 'data': {'appointment': appointment.to_dict()}})
 
 # add treatment details for an appointment

@@ -4,58 +4,37 @@ const AdminTemplate = `
         <div class="container">
                     <!-- Welcome Message - Only show on main dashboard -->
                     <div v-if="adminView === 'dashboard'" class="mb-4">
-                        <h3 class="text-primary mb-2">Welcome Admin !</h3>
+                        <h3 class="admin-welcome-heading mb-2">Welcome Admin!!</h3>
                         <p class="text-muted fs-5">Manage doctors, patients, and appointments efficiently.</p>
                     </div>
 
-                    <!-- Navigation -->
-                    <div class="row mb-3">
-                        <div class="col-12">
-                            <button v-if="adminView !== 'dashboard'" class="btn btn-outline-secondary mb-2" @click="adminView = 'dashboard'">
-                                <i class="bi bi-arrow-left"></i> Back to Dashboard
-                            </button>
-                        </div>
-                    </div>
-
                     <!-- Dashboard View -->
-                    <div v-if="adminView === 'dashboard'">
+                    <div>
                     
                     <!-- Stats Cards -->
-                    <div class="row mb-4 g-4">
+                    <div class="row mb-4 g-3">
                         <div class="col-md-3">
-                            <div class="stat-card" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);">
-                                <div class="position-relative">
-                                    <h2 class="mb-1 fw-bold">{{ stats.total_doctors || 0 }}</h2>
-                                    <p class="mb-0 opacity-90">Total Doctors</p>
-                                    <i class="bi bi-person-badge stat-icon"></i>
-                                </div>
+                            <div class="stat-card">
+                                <h2 class="mb-1">{{ stats.total_doctors || 0 }}</h2>
+                                <p class="mb-0">Total Doctors</p>
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="stat-card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
-                                <div class="position-relative">
-                                    <h2 class="mb-1 fw-bold">{{ stats.total_patients || 0 }}</h2>
-                                    <p class="mb-0 opacity-90">Total Patients</p>
-                                    <i class="bi bi-people stat-icon"></i>
-                                </div>
+                            <div class="stat-card">
+                                <h2 class="mb-1">{{ stats.total_patients || 0 }}</h2>
+                                <p class="mb-0">Total Patients</p>
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="stat-card" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);">
-                                <div class="position-relative">
-                                    <h2 class="mb-1 fw-bold">{{ stats.total_appointments || 0 }}</h2>
-                                    <p class="mb-0 opacity-90">Total Appointments</p>
-                                    <i class="bi bi-calendar-check stat-icon"></i>
-                                </div>
+                            <div class="stat-card">
+                                <h2 class="mb-1">{{ stats.total_appointments || 0 }}</h2>
+                                <p class="mb-0">Total Appointments</p>
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
-                                <div class="position-relative">
-                                    <h2 class="mb-1 fw-bold">{{ stats.active_doctors || 0 }}</h2>
-                                    <p class="mb-0 opacity-90">Active Doctors</p>
-                                    <i class="bi bi-check-circle stat-icon"></i>
-                                </div>
+                            <div class="stat-card">
+                                <h2 class="mb-1">{{ stats.active_doctors || 0 }}</h2>
+                                <p class="mb-0">Active Doctors</p>
                             </div>
                         </div>
                     </div>
@@ -135,7 +114,7 @@ const AdminTemplate = `
                                                         <span class="fw-medium">Dr. {{ doctor.name || 'N/A' }}</span>
                                                     </td>
                                                     <td>
-                                                        <span class="badge badge-soft-info">{{ doctor.specialization || 'N/A' }}</span>
+                                                        <span class="badge" :class="getSpecializationBadgeClass(doctor.specialization)">{{ doctor.specialization || 'N/A' }}</span>
                                                         <small v-if="!doctor.specialization" class="text-danger d-block">Missing data</small>
                                                     </td>
                                                     <td><i class="bi bi-briefcase me-1 text-muted"></i>{{ doctor.experience }} years</td>
@@ -145,15 +124,13 @@ const AdminTemplate = `
                                                         </span>
                                                     </td>
                                                     <td>
-                                                        <div class="btn-group btn-group-sm">
-                                                            <button class="btn btn-outline-primary" @click="editDoctor(doctor)" title="Edit Doctor">
-                                                                <i class="bi bi-pencil"></i>
-                                                            </button>
-                                                            <button class="btn btn-outline-info" @click="openDoctorHistory(doctor)" title="View History">
-                                                                <i class="bi bi-clock-history"></i>
-                                                            </button>
-                                                            <button class="btn" :class="doctor.is_active ? 'btn-outline-warning' : 'btn-outline-success'" @click="toggleDoctorStatus(doctor)" :title="doctor.is_active ? 'Deactivate' : 'Activate'">
-                                                                <i class="bi" :class="doctor.is_active ? 'bi-ban' : 'bi-check-circle'"></i>
+                                                        <div class="table-action-links">
+                                                            <button class="btn btn-link table-action-link" @click="editDoctor(doctor)" title="Edit Doctor">Edit</button>
+                                                            <span class="table-action-separator">·</span>
+                                                            <button class="btn btn-link table-action-link" @click="openDoctorHistory(doctor)" title="View Schedule">Schedule</button>
+                                                            <span class="table-action-separator">·</span>
+                                                            <button class="btn btn-link table-action-link" @click="toggleDoctorStatus(doctor)" :title="doctor.is_active ? 'Disable' : 'Enable'">
+                                                                {{ doctor.is_active ? 'Disable' : 'Enable' }}
                                                             </button>
                                                         </div>
                                                     </td>
@@ -285,7 +262,7 @@ const AdminTemplate = `
                                                         <span class="fw-medium">Dr. {{ appointment.doctor ? appointment.doctor.name : 'N/A' }}</span>
                                                     </td>
                                                     <td>
-                                                        <span class="badge badge-soft-info">{{ appointment.doctor ? (appointment.doctor.department || appointment.doctor.specialization || 'N/A') : 'N/A' }}</span>
+                                                        <span class="badge" :class="getSpecializationBadgeClass(appointment.doctor ? (appointment.doctor.department || appointment.doctor.specialization || 'N/A') : 'N/A')">{{ appointment.doctor ? (appointment.doctor.department || appointment.doctor.specialization || 'N/A') : 'N/A' }}</span>
                                                         <small v-if="appointment.doctor && !appointment.doctor.department && !appointment.doctor.specialization" class="text-danger d-block">Missing data</small>
                                                     </td>
                                                     <td><i class="bi bi-calendar3 me-1 text-muted"></i>{{ appointment.appointment_date }}</td>
@@ -401,374 +378,239 @@ const AdminTemplate = `
                             </div>
                         </div>
                     </div>
+        </div>
+    </div>
+</div>
 
-                    <!-- Add Doctor Page -->
-                    <div v-if="adminView === 'add-doctor'" class="card shadow-sm border-0">
-                        <div class="card-header bg-white border-bottom py-3">
-                            <div class="d-flex align-items-center">
-                                <div class="bg-primary bg-opacity-10 p-2 rounded-3 me-3">
-                                    <i class="bi bi-person-plus text-primary fs-5"></i>
-                                </div>
-                                <div>
-                                    <h5 class="mb-0 fw-bold">Add New Doctor</h5>
-                                    <small class="text-muted">Create a new doctor account</small>
-                                </div>
-                            </div>
+<!-- Add Doctor Modal -->
+<div class="modal fade" id="addDoctorModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Doctor</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form @submit.prevent="addDoctor">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" class="form-control" v-model="newDoctor.name" required>
                         </div>
-                        <div class="card-body p-4">
-                            <form @submit.prevent="addDoctor">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="new_name" class="form-label">Full Name</label>
-                                            <input type="text" class="form-control" id="new_name" v-model="newDoctor.name" required>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="new_email" class="form-label">Email</label>
-                                            <input type="email" class="form-control" id="new_email" v-model="newDoctor.email" required>
-                                            <small class="text-muted">Login credentials will be auto-generated</small>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="new_specialization" class="form-label">Specialization</label>
-                                            <select class="form-select" id="new_specialization" v-model="newDoctor.specialization" required>
-                                                <option value="">Select Specialization</option>
-                                                <option value="Cardiology">Cardiology</option>
-                                                <option value="Neurology">Neurology</option>
-                                                <option value="Orthopedics">Orthopedics</option>
-                                                <option value="Pediatrics">Pediatrics</option>
-                                                <option value="Dermatology">Dermatology</option>
-                                                <option value="Psychiatry">Psychiatry</option>
-                                                <option value="General Medicine">General Medicine</option>
-                                                <option value="ENT">ENT</option>
-                                                <option value="Ophthalmology">Ophthalmology</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="new_experience" class="form-label">Experience (years)</label>
-                                            <input type="number" class="form-control" id="new_experience" v-model="newDoctor.experience" min="0" required>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="new_phone" class="form-label">Phone</label>
-                                            <input type="tel" class="form-control" id="new_phone" v-model="newDoctor.phone" required>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="new_qualification" class="form-label">Qualification</label>
-                                            <input type="text" class="form-control" id="new_qualification" v-model="newDoctor.qualification" required>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="border-top pt-4 mt-4">
-                                    <button type="submit" class="btn btn-primary px-4 py-2" :disabled="loading">
-                                        <i class="bi bi-check-circle me-2"></i>
-                                        <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span>
-                                        <span v-if="!loading">Add Doctor</span>
-                                        <span v-else>Adding...</span>
-                                    </button>
-                                    <button type="button" class="btn btn-outline-secondary px-4 py-2 ms-2" @click="adminView = 'dashboard'">
-                                        <i class="bi bi-x-circle me-2"></i>Cancel
-                                    </button>
-                                </div>
-                            </form>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" v-model="newDoctor.email" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Specialization</label>
+                            <select class="form-select" v-model="newDoctor.specialization" required>
+                                <option value="">Select Specialization</option>
+                                <option value="Cardiology">Cardiology</option>
+                                <option value="Neurology">Neurology</option>
+                                <option value="Orthopedics">Orthopedics</option>
+                                <option value="Pediatrics">Pediatrics</option>
+                                <option value="Dermatology">Dermatology</option>
+                                <option value="Psychiatry">Psychiatry</option>
+                                <option value="General Medicine">General Medicine</option>
+                                <option value="ENT">ENT</option>
+                                <option value="Ophthalmology">Ophthalmology</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Experience (years)</label>
+                            <input type="number" class="form-control" v-model="newDoctor.experience" min="0" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Phone</label>
+                            <input type="tel" class="form-control" v-model="newDoctor.phone" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Qualification</label>
+                            <input type="text" class="form-control" v-model="newDoctor.qualification" required>
                         </div>
                     </div>
+                    <button type="submit" class="btn btn-primary" :disabled="loading">
+                        <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span>Add Doctor
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
-                    <!-- edit doctor -->
-                    <div v-if="adminView === 'edit-doctor'" class="card shadow-sm border-0">
-                        <div class="card-header bg-white border-bottom py-3">
-                            <div class="d-flex align-items-center">
-                                <div class="bg-info bg-opacity-10 p-2 rounded-3 me-3">
-                                    <i class="bi bi-pencil text-info fs-5"></i>
-                                </div>
-                                <div>
-                                    <h5 class="mb-0 fw-bold">Edit Doctor</h5>
-                                    <small class="text-muted">{{ editingDoctor.name }}</small>
-                                </div>
-                            </div>
+<!-- Edit Doctor Modal -->
+<div class="modal fade" id="editDoctorModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" v-if="editingDoctor">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Doctor - {{ editingDoctor.name }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form @submit.prevent="updateDoctor">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" class="form-control" v-model="editingDoctor.name" required>
                         </div>
-                        <div class="card-body p-4">
-                            <form @submit.prevent="updateDoctor">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="edit_name" class="form-label">Full Name</label>
-                                            <input type="text" class="form-control" id="edit_name" v-model="editingDoctor.name" required>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="edit_specialization" class="form-label">Specialization</label>
-                                            <select class="form-select" id="edit_specialization" v-model="editingDoctor.specialization" required>
-                                                <option value="">Select Specialization</option>
-                                                <option value="Cardiology">Cardiology</option>
-                                                <option value="Neurology">Neurology</option>
-                                                <option value="Orthopedics">Orthopedics</option>
-                                                <option value="Pediatrics">Pediatrics</option>
-                                                <option value="Dermatology">Dermatology</option>
-                                                <option value="Psychiatry">Psychiatry</option>
-                                                <option value="General Medicine">General Medicine</option>
-                                                <option value="ENT">ENT</option>
-                                                <option value="Ophthalmology">Ophthalmology</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="edit_experience" class="form-label">Experience (years)</label>
-                                            <input type="number" class="form-control" id="edit_experience" v-model="editingDoctor.experience" min="0" required>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="edit_phone" class="form-label">Phone</label>
-                                            <input type="tel" class="form-control" id="edit_phone" v-model="editingDoctor.phone" required>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="edit_qualification" class="form-label">Qualification</label>
-                                            <input type="text" class="form-control" id="edit_qualification" v-model="editingDoctor.qualification" required>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="edit_consultation_fee" class="form-label">Consultation Fee</label>
-                                            <input type="number" step="0.01" class="form-control" id="edit_consultation_fee" v-model="editingDoctor.consultation_fee" required>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="edit_is_active" v-model="editingDoctor.is_active">
-                                        <label class="form-check-label" for="edit_is_active">
-                                            Active Doctor
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="border-top pt-4 mt-4">
-                                    <button type="submit" class="btn btn-primary px-4 py-2" :disabled="loading">
-                                        <i class="bi bi-save me-2"></i>
-                                        <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span>
-                                        <span v-if="!loading">Update Doctor</span>
-                                        <span v-else>Updating...</span>
-                                    </button>
-                                    <button type="button" class="btn btn-outline-secondary px-4 py-2 ms-2" @click="adminView = 'dashboard'">
-                                        <i class="bi bi-x-circle me-2"></i>Cancel
-                                    </button>
-                                </div>
-                            </form>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Specialization</label>
+                            <select class="form-select" v-model="editingDoctor.specialization" required>
+                                <option value="">Select Specialization</option>
+                                <option value="Cardiology">Cardiology</option>
+                                <option value="Neurology">Neurology</option>
+                                <option value="Orthopedics">Orthopedics</option>
+                                <option value="Pediatrics">Pediatrics</option>
+                                <option value="Dermatology">Dermatology</option>
+                                <option value="Psychiatry">Psychiatry</option>
+                                <option value="General Medicine">General Medicine</option>
+                                <option value="ENT">ENT</option>
+                                <option value="Ophthalmology">Ophthalmology</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Experience (years)</label>
+                            <input type="number" class="form-control" v-model="editingDoctor.experience" min="0" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Phone</label>
+                            <input type="tel" class="form-control" v-model="editingDoctor.phone" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Qualification</label>
+                            <input type="text" class="form-control" v-model="editingDoctor.qualification" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Consultation Fee</label>
+                            <input type="number" step="0.01" class="form-control" v-model="editingDoctor.consultation_fee" required>
                         </div>
                     </div>
+                    <button type="submit" class="btn btn-primary" :disabled="loading">
+                        <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span>Update Doctor
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
-                    <!-- edit patient -->
-                    <div v-if="adminView === 'edit-patient'" class="card shadow-sm border-0">
-                        <div class="card-header bg-white border-bottom py-3">
-                            <div class="d-flex align-items-center">
-                                <div class="bg-success bg-opacity-10 p-2 rounded-3 me-3">
-                                    <i class="bi bi-person-gear text-success fs-5"></i>
-                                </div>
-                                <div>
-                                    <h5 class="mb-0 fw-bold">Edit Patient</h5>
-                                    <small class="text-muted">{{ editingPatient.name }}</small>
-                                </div>
-                            </div>
+<!-- Edit Patient Modal -->
+<div class="modal fade" id="editPatientModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" v-if="editingPatient">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Patient - {{ editingPatient.name }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form @submit.prevent="updatePatient">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" class="form-control" v-model="editingPatient.name" required>
                         </div>
-                        <div class="card-body p-4">
-                            <form @submit.prevent="updatePatient">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="edit_p_name" class="form-label">Full Name</label>
-                                            <input type="text" class="form-control" id="edit_p_name" v-model="editingPatient.name" required>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="edit_p_email" class="form-label">Email</label>
-                                            <input type="email" class="form-control" id="edit_p_email" v-model="editingPatient.email" required>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="edit_p_phone" class="form-label">Phone</label>
-                                            <input type="tel" class="form-control" id="edit_p_phone" v-model="editingPatient.phone">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="edit_p_age" class="form-label">Age</label>
-                                            <input type="number" class="form-control" id="edit_p_age" v-model="editingPatient.age" min="0">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="edit_p_gender" class="form-label">Gender</label>
-                                            <select class="form-select" id="edit_p_gender" v-model="editingPatient.gender">
-                                                <option value="">Select Gender</option>
-                                                <option value="Male">Male</option>
-                                                <option value="Female">Female</option>
-                                                <option value="Other">Other</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="edit_p_emergency" class="form-label">Emergency Contact</label>
-                                            <input type="text" class="form-control" id="edit_p_emergency" v-model="editingPatient.emergency_contact">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="edit_p_address" class="form-label">Address</label>
-                                    <textarea class="form-control" id="edit_p_address" v-model="editingPatient.address" rows="2"></textarea>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="edit_p_history" class="form-label">Medical History</label>
-                                    <textarea class="form-control" id="edit_p_history" v-model="editingPatient.medical_history" rows="3"></textarea>
-                                </div>
-                                <div class="border-top pt-4 mt-4">
-                                    <button type="submit" class="btn btn-primary px-4 py-2" :disabled="loading">
-                                        <i class="bi bi-save me-2"></i>
-                                        <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span>
-                                        <span v-if="!loading">Update Patient</span>
-                                        <span v-else>Updating...</span>
-                                    </button>
-                                    <button type="button" class="btn btn-outline-secondary px-4 py-2 ms-2" @click="adminView = 'dashboard'">
-                                        <i class="bi bi-x-circle me-2"></i>Cancel
-                                    </button>
-                                </div>
-                            </form>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" v-model="editingPatient.email" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Phone</label>
+                            <input type="tel" class="form-control" v-model="editingPatient.phone">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Age</label>
+                            <input type="number" class="form-control" v-model="editingPatient.age" min="0">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Gender</label>
+                            <select class="form-select" v-model="editingPatient.gender">
+                                <option value="">Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Emergency Contact</label>
+                            <input type="text" class="form-control" v-model="editingPatient.emergency_contact">
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label class="form-label">Address</label>
+                            <textarea class="form-control" v-model="editingPatient.address" rows="2"></textarea>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label class="form-label">Medical History</label>
+                            <textarea class="form-control" v-model="editingPatient.medical_history" rows="3"></textarea>
                         </div>
                     </div>
+                    <button type="submit" class="btn btn-primary" :disabled="loading">
+                        <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span>Update Patient
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
-                    <!-- Patient History View -->
-                    <div v-if="adminView === 'patient-history'" class="card shadow-sm border-0">
-                        <div class="card-header bg-white border-bottom py-3">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="d-flex align-items-center">
-                                    <div class="bg-info bg-opacity-10 p-2 rounded-3 me-3">
-                                        <i class="bi bi-clock-history text-info fs-5"></i>
-                                    </div>
-                                    <div>
-                                        <h5 class="mb-0 fw-bold">Patient History</h5>
-                                        <small class="text-muted">{{ selectedPatient?.name }}</small>
-                                    </div>
-                                </div>
-                                <span class="badge bg-info rounded-pill px-3 py-2">{{ patientHistory.length }} appointments</span>
-                            </div>
-                        </div>
-                        <div class="card-body p-4">
-                            <div v-if="patientHistory.length === 0" class="text-center text-muted py-5">
-                                <div class="mb-4">
-                                    <i class="bi bi-inbox" style="font-size: 4rem; opacity: 0.3;"></i>
-                                </div>
-                                <h6 class="text-muted">No Appointments Found</h6>
-                                <p class="small text-muted mb-0">This patient has no booked appointments yet.</p>
-                            </div>
-                            <div v-else class="table-responsive mb-3">
-                                <table class="table table-striped table-hover">
-                                    <thead class="table-dark">
-                                        <tr>
-                                            <th>Sr. No</th>
-                                            <th>Date</th>
-                                            <th>Slot</th>
-                                            <th>Doctor</th>
-                                            <th>Department</th>
-                                            <th>Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="(appointment, index) in patientHistory" :key="appointment.id">
-                                            <td>{{ index + 1 }}.</td>
-                                            <td>{{ new Date(appointment.appointment_date).toLocaleDateString() }}</td>
-                                            <td>{{ formatTimeSlot(appointment.appointment_time) }}</td>
-                                            <td>Dr. {{ appointment.doctor?.name || 'N/A' }}</td>
-                                            <td>{{ appointment.doctor?.department || 'N/A' }}</td>
-                                            <td>
-                                                <span class="badge" :class="getStatusClass(appointment.status)">
-                                                    {{ appointment.status }}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
+<!-- Patient History Modal -->
+<div class="modal fade" id="patientHistoryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Patient History - {{ selectedPatient?.name }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div v-if="patientHistory.length === 0" class="text-center text-muted py-4">No appointments found.</div>
+                <div v-else class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr><th>Sr. No</th><th>Date</th><th>Slot</th><th>Doctor</th><th>Department</th><th>Status</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(appointment, index) in patientHistory" :key="appointment.id">
+                                <td>{{ index + 1 }}</td>
+                                <td>{{ new Date(appointment.appointment_date).toLocaleDateString() }}</td>
+                                <td>{{ formatTimeSlot(appointment.appointment_time) }}</td>
+                                <td>Dr. {{ appointment.doctor?.name || 'N/A' }}</td>
+                                <td>{{ appointment.doctor?.department || 'N/A' }}</td>
+                                <td><span class="badge" :class="getStatusClass(appointment.status)">{{ appointment.status }}</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-                    <!-- Doctor History View -->
-                    <div v-if="adminView === 'doctor-history'" class="card shadow-sm border-0">
-                        <div class="card-header bg-white border-bottom py-3">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="d-flex align-items-center">
-                                    <div class="bg-primary bg-opacity-10 p-2 rounded-3 me-3">
-                                        <i class="bi bi-clock-history text-primary fs-5"></i>
-                                    </div>
-                                    <div>
-                                        <h5 class="mb-0 fw-bold">Doctor History</h5>
-                                        <small class="text-muted">Dr. {{ selectedDoctor?.name }}</small>
-                                    </div>
-                                </div>
-                                <span class="badge bg-primary rounded-pill px-3 py-2">{{ doctorHistory.length }} appointments</span>
-                            </div>
-                        </div>
-                        <div class="card-body p-4">
-                            <div v-if="doctorHistory.length === 0" class="text-center text-muted py-5">
-                                <div class="mb-4">
-                                    <i class="bi bi-inbox" style="font-size: 4rem; opacity: 0.3;"></i>
-                                </div>
-                                <h6 class="text-muted">No Appointments Found</h6>
-                                <p class="small text-muted mb-0">This doctor has no appointments yet.</p>
-                            </div>
-                            <div v-else class="table-responsive mb-3">
-                                <table class="table table-striped table-hover">
-                                    <thead class="table-dark">
-                                        <tr>
-                                            <th>Sr. No</th>
-                                            <th>Date</th>
-                                            <th>Slot</th>
-                                            <th>Patient</th>
-                                            <th>Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="(appointment, index) in doctorHistory" :key="appointment.id">
-                                            <td>{{ index + 1 }}.</td>
-                                            <td>{{ new Date(appointment.appointment_date).toLocaleDateString() }}</td>
-                                            <td>{{ formatTimeSlot(appointment.appointment_time) }}</td>
-                                            <td>{{ getPatientPrefix() }}{{ appointment.patient?.name || 'N/A' }}</td>
-                                            <td>
-                                                <span class="badge" :class="getStatusClass(appointment.status)">
-                                                    {{ appointment.status }}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
+<!-- Doctor History Modal -->
+<div class="modal fade" id="doctorHistoryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Doctor History - Dr. {{ selectedDoctor?.name }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div v-if="doctorHistory.length === 0" class="text-center text-muted py-4">No appointments found.</div>
+                <div v-else class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr><th>Sr. No</th><th>Date</th><th>Slot</th><th>Patient</th><th>Status</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(appointment, index) in doctorHistory" :key="appointment.id">
+                                <td>{{ index + 1 }}</td>
+                                <td>{{ new Date(appointment.appointment_date).toLocaleDateString() }}</td>
+                                <td>{{ formatTimeSlot(appointment.appointment_time) }}</td>
+                                <td>{{ getPatientPrefix() }}{{ appointment.patient?.name || 'N/A' }}</td>
+                                <td><span class="badge" :class="getStatusClass(appointment.status)">{{ appointment.status }}</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -946,12 +788,14 @@ const AdminComponent = {
         },
 
         showAddDoctorForm() {
-            this.adminView = 'add-doctor'
+            const modal = new bootstrap.Modal(document.getElementById('addDoctorModal'));
+            modal.show();
         },
 
         editDoctor(doctor) {
             this.editingDoctor = { ...doctor }
-            this.adminView = 'edit-doctor'
+            const modal = new bootstrap.Modal(document.getElementById('editDoctorModal'));
+            modal.show();
         },
 
         editPatient(patient) {
@@ -960,7 +804,8 @@ const AdminComponent = {
                 ...patient,
                 email: patient.user ? patient.user.email : ''
             }
-            this.adminView = 'edit-patient'
+            const modal = new bootstrap.Modal(document.getElementById('editPatientModal'));
+            modal.show();
         },
 
         async addDoctor() {
@@ -969,7 +814,9 @@ const AdminComponent = {
             if (resp.success) {
                 this.success = 'Doctor account created successfully!'
                 this.newDoctor = { name:'', email:'', specialization:'', experience:'', phone:'', qualification:'' }
-                this.adminView = 'dashboard'
+                const modalEl = document.getElementById('addDoctorModal');
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
                 await this.loadAdminData()
             } else {
                 this.error = resp.message || 'Failed to add doctor'
@@ -982,7 +829,9 @@ const AdminComponent = {
             const resp = await window.ApiService.updateDoctor(this.editingDoctor.id, this.editingDoctor)
             if (resp.success) {
                 this.success = 'Doctor updated successfully!'
-                this.adminView = 'dashboard'
+                const modalEl = document.getElementById('editDoctorModal');
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
                 await this.loadAdminData()
             } else {
                 this.error = resp.message || 'Failed to update doctor'
@@ -995,7 +844,9 @@ const AdminComponent = {
             const resp = await window.ApiService.updatePatient(this.editingPatient.id, this.editingPatient)
             if (resp.success) {
                 this.success = 'Patient updated successfully!'
-                this.adminView = 'dashboard'
+                const modalEl = document.getElementById('editPatientModal');
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
                 await this.loadAdminData()
             } else {
                 this.error = resp.message || 'Failed to update patient'
@@ -1056,8 +907,9 @@ const AdminComponent = {
 
         openAdminPatientHistory(patient) {
             this.selectedPatient = patient
-            this.adminView = 'patient-history'
             this.loadPatientHistory(patient.id)
+            const modal = new bootstrap.Modal(document.getElementById('patientHistoryModal'));
+            modal.show();
         },
 
         async loadPatientHistory(patientId) {
@@ -1071,8 +923,9 @@ const AdminComponent = {
 
         openDoctorHistory(doctor) {
             this.selectedDoctor = doctor
-            this.adminView = 'doctor-history'
             this.loadDoctorHistory(doctor.id)
+            const modal = new bootstrap.Modal(document.getElementById('doctorHistoryModal'));
+            modal.show();
         },
 
         async loadDoctorHistory(doctorId) {
@@ -1186,6 +1039,18 @@ const AdminComponent = {
 
         getPatientPrefix() {
             return window.UtilsModule.getPatientPrefix()
+        },
+
+        getSpecializationBadgeClass(specialization) {
+            const value = (specialization || '').toLowerCase();
+            if (value.includes('cardio'))    return 'specialty-badge specialty-cardiology';
+            if (value.includes('neuro'))     return 'specialty-badge specialty-neurology';
+            if (value.includes('ortho'))     return 'specialty-badge specialty-orthopedics';
+            if (value.includes('pediatric')) return 'specialty-badge specialty-pediatrics';
+            if (value.includes('derma'))     return 'specialty-badge specialty-dermatology';
+            if (value.includes('psychiat'))  return 'specialty-badge specialty-psychiatry';
+            if (value.includes('general') || value.includes('ent') || value.includes('ophthal')) return 'specialty-badge specialty-general';
+            return 'specialty-badge specialty-default';
         }
     },
     async mounted() {

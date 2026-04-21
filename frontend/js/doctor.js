@@ -15,49 +15,37 @@ const DoctorDashboardTemplate = `
         <div class="container">
             <!-- Welcome Message -->
             <div class="mb-4">
-                <h3 class="text-primary mb-2">Welcome, Dr. {{ currentUser.name || currentUser.username }}!</h3>
+                <h3 class="admin-welcome-heading mb-2">Welcome, Dr. {{ currentUser.name || currentUser.username }}!</h3>
                 <p class="text-muted fs-5">Here's your practice overview for today.</p>
             </div>
             
             <!-- Stats Cards -->
-            <div class="row mb-4 g-4">
+            <div class="row mb-4 g-3">
                 <div class="col-md-3">
-                    <div class="stat-card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
-                        <div class="position-relative">
-                            <h2 class="mb-1 fw-bold">{{ stats.total_appointments || 0 }}</h2>
-                            <p class="mb-0 opacity-90">Total Appointments</p>
-                            <i class="bi bi-calendar-check stat-icon"></i>
-                        </div>
+                    <div class="stat-card">
+                        <h2 class="mb-1">{{ stats.total_appointments || 0 }}</h2>
+                        <p class="mb-0">Total Appointments</p>
                     </div>
                 </div>
 
                 <div class="col-md-3">
-                    <div class="stat-card" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);">
-                        <div class="position-relative">
-                            <h2 class="mb-1 fw-bold">{{ stats.today_appointments || 0 }}</h2>
-                            <p class="mb-0 opacity-90">Today's Schedule</p>
-                            <i class="bi bi-clock-history stat-icon"></i>
-                        </div>
+                    <div class="stat-card">
+                        <h2 class="mb-1">{{ stats.today_appointments || 0 }}</h2>
+                        <p class="mb-0">Today's Schedule</p>
                     </div>
                 </div>
 
                 <div class="col-md-3">
-                    <div class="stat-card" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);">
-                        <div class="position-relative">
-                            <h2 class="mb-1 fw-bold">{{ stats.total_patients || 0 }}</h2>
-                            <p class="mb-0 opacity-90">Total Patients</p>
-                            <i class="bi bi-people stat-icon"></i>
-                        </div>
+                    <div class="stat-card">
+                        <h2 class="mb-1">{{ stats.total_patients || 0 }}</h2>
+                        <p class="mb-0">Total Patients</p>
                     </div>
                 </div>
 
                 <div class="col-md-3">
-                    <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
-                        <div class="position-relative">
-                            <h2 class="mb-1 fw-bold">{{ stats.completed_today || 0 }}</h2>
-                            <p class="mb-0 opacity-90">Completed Today</p>
-                            <i class="bi bi-check-circle stat-icon"></i>
-                        </div>
+                    <div class="stat-card">
+                        <h2 class="mb-1">{{ stats.completed_today || 0 }}</h2>
+                        <p class="mb-0">Completed Today</p>
                     </div>
                 </div>
             </div>
@@ -76,7 +64,7 @@ const DoctorDashboardTemplate = `
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="availability-tab" data-bs-toggle="tab" data-bs-target="#availability" type="button" role="tab">
-                        <i class="bi bi-calendar-alt"></i> Set Availability
+                        <i class="bi bi-clock-fill"></i> Set Availability
                     </button>
                 </li>
             </ul>

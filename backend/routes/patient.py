@@ -340,9 +340,51 @@ def cancel_appointment(appointment_id):
     
     appointment.status = 'cancelled'
     appointment.updated_at = datetime.utcnow()
-    
+
     db.session.commit()
-    
+
+    # Send cancellation emails directly (no Celery needed)
+    try:
+        from app import mail
+        from flask_mail import Message
+        from celery_tasks.email_template import get_email_template
+
+        patient_name = appointment.patient.name
+        doctor_name = appointment.doctor.name
+        apt_date = appointment.appointment_date
+        apt_time = appointment.appointment_time
+
+        # Email to patient
+        if appointment.patient.user and appointment.patient.user.email:
+            patient_content = (
+                f"<p>Hi {patient_name},</p>"
+                f"<p>Your appointment has been <strong>cancelled</strong>.</p>"
+                f"<p><strong>Doctor:</strong> Dr. {doctor_name}</p>"
+                f"<p><strong>Date:</strong> {apt_date}</p>"
+                f"<p><strong>Time:</strong> {apt_time}</p>"
+                f"<p>Please book a new appointment if needed.</p>"
+            )
+            msg = Message(subject="Appointment Cancellation - MediHub",
+                          recipients=[appointment.patient.user.email])
+            msg.html = get_email_template("Appointment Cancellation", patient_content)
+            mail.send(msg)
+
+        # Email to doctor
+        if appointment.doctor.user and appointment.doctor.user.email:
+            doctor_content = (
+                f"<p>Hi Dr. {doctor_name},</p>"
+                f"<p>An appointment has been cancelled.</p>"
+                f"<p><strong>Patient:</strong> {patient_name}</p>"
+                f"<p><strong>Date:</strong> {apt_date}</p>"
+                f"<p><strong>Time:</strong> {apt_time}</p>"
+            )
+            msg2 = Message(subject="Appointment Cancellation - MediHub",
+                           recipients=[appointment.doctor.user.email])
+            msg2.html = get_email_template("Appointment Cancellation", doctor_content)
+            mail.send(msg2)
+    except Exception:
+        pass  # Don't block the API response if mail fails
+
     return jsonify({'success': True, 'message': 'Appointment cancelled successfully', 'data': {}})
 
 # get patient medical history with treatments
